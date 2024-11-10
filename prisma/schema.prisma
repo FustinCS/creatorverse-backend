@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id                String              @id
+  username          String              @unique
+  posts             Art[]
+  Users_Communities Users_Communities[]
+}
+
+model Art {
+  id               String             @id @default(uuid())
+  publicUrl        String             @unique
+  title            String
+  userId           String
+  user             User               @relation(fields: [userId], references: [id])
+  Arts_Communities Arts_Communities[]
+}
+
+model Community {
+  id                String              @id @default(uuid())
+  name              String              @unique
+  Arts_Communities  Arts_Communities[]
+  Users_Communities Users_Communities[]
+}
+
+model Arts_Communities {
+  artId       String
+  art         Art       @relation(fields: [artId], references: [id])
+  communityId String
+  community   Community @relation(fields: [communityId], references: [id])
+
+  @@id([artId, communityId])
+}
+
+model Users_Communities {
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  communityId String
+  community   Community @relation(fields: [communityId], references: [id])
+
+  @@id([userId, communityId])
+}
